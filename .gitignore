@@ -1,0 +1,21 @@
+# macOS system files
+.DS_Store
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+venv/
+.env
+
+# Databases and raw data (optional, if you don't want to push heavy files)
+db/*.db
+data/raw/*
+data/processed/*
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+
