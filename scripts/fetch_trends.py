@@ -67,6 +67,14 @@ def bronze_layer() -> pd.DataFrame:
     return raw_df
 
 
+def store_to_sqlite(df:pd.DataFrame, db_path: str ='data/raw/trends.db', table: str ='Trends_raw') -> None:
+    con= sqlite3.connect(db_path)
+    df.to_sql(table, con, if_exists='append', index=False)
+    con.close()
+
+
+
 if __name__=="__main__":
     # Run the Bronze layer ingestion and print a preview of the results.
     df: pd.DataFrame = bronze_layer()
+    store_to_sqlite(df)
