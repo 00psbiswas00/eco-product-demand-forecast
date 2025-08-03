@@ -70,4 +70,3 @@ def bronze_layer() -> pd.DataFrame:
 if __name__=="__main__":
     # Run the Bronze layer ingestion and print a preview of the results.
     df: pd.DataFrame = bronze_layer()
-    print(df)
