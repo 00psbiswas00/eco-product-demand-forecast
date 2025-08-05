@@ -6,7 +6,7 @@ from openfoodfacts import API, APIVersion, Country, Flavor, Environment
 # normalize results, and store them into SQLite for later analysis.
 
 # Mapping of dataset flavor to corresponding SQLite table names
-flavor_table={
+flavor_table: dict[Flavor,str]={
     Flavor.off: "openfoodfacts_raw",
     Flavor.obf: "openbeautyfacts_raw"
 }
