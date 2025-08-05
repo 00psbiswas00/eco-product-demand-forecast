@@ -36,7 +36,7 @@ def fetch_openfoodfacts(api: API, query: str, page_size: int = 50) -> pd.DataFra
         results = api.product.text_search(query, page_size=page_size)
         products = results.get("products", []) if results else []
     except Exception as e:
-        # Handle any errors during API call gracefully
+        # Handle any errors during API call
         print(f"Error fetching data for query '{query}': {e}")
         products = []
     
