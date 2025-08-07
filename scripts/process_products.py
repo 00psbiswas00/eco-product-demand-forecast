@@ -1,9 +1,19 @@
 import pandas as pd
 import sqlite3
 
+# List of raw product tables to be processed
 raw_table: list[str]=['openfoodfacts_raw', 'openbeautyfacts_raw']
 
 def clean_prodct_data(table:str)->pd.DataFrame:
+    """
+    Cleans product data from a given SQLite table.
+
+    Parameters:
+    table (str): Name of the table to read from.
+
+    Returns:
+    pd.DataFrame: Cleaned DataFrame with necessary fields filled and duplicates removed.
+    """
     con= sqlite3.connect('data/raw/products.db')
     df=pd.read_sql(f'SELECT * FROM {table};', con)
     df=df.dropna(subset=['product_name','url'])
@@ -15,6 +25,14 @@ def clean_prodct_data(table:str)->pd.DataFrame:
 
 
 def store_to_sqlite(df: pd.DataFrame, db_path="data/processed/eco_products.db", table="products_processed"):
+    """
+    Stores a cleaned DataFrame into a SQLite database.
+
+    Parameters:
+    df (pd.DataFrame): The cleaned DataFrame to store.
+    db_path (str): Path to the SQLite database.
+    table (str): Table name to store the data in.
+    """
     if df.empty:
         print(f'No data to store in {table}')
         return
@@ -24,6 +42,7 @@ def store_to_sqlite(df: pd.DataFrame, db_path="data/processed/eco_products.db", 
     print(f"✅ Stored {len(df)} rows into {table}")
 
 
+# Process and store each raw table
 if __name__=='__main__':
     for table in raw_table:
         df_clean = clean_prodct_data(table)
