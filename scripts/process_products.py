@@ -4,7 +4,7 @@ import sqlite3
 # List of raw product tables to be processed
 raw_table: list[str]=['openfoodfacts_raw', 'openbeautyfacts_raw']
 
-def clean_prodct_data(table:str)->pd.DataFrame:
+def clean_product_data(table:str)->pd.DataFrame:
     """
     Cleans product data from a given SQLite table.
 
@@ -16,11 +16,22 @@ def clean_prodct_data(table:str)->pd.DataFrame:
     """
     con= sqlite3.connect('data/raw/products.db')
     df=pd.read_sql(f'SELECT * FROM {table};', con)
+    con.close()
     df=df.dropna(subset=['product_name','url'])
     for col in ['brand','categories','labels','packaging','ecoscore_grade','nutriscore_grade']:
         if col in df.columns:
             df[col] = df[col].fillna('unknown')
     df=df.drop_duplicates(subset=['url'])
+
+    #standarize the data
+    if 'categories' in df.columns:
+        df['categories']= (df['categories'].str.lower()
+                                        .str.replace(r"[>\-;|/\\]", ",", regex=True)
+                                        .str.split(',')
+                                        .apply(lambda cat:', '.join([i.strip() for i in cat if i.strip()] if isinstance(cat, list) else [])))
+                                        
+        
+
     return df
 
 
@@ -45,6 +56,6 @@ def store_to_sqlite(df: pd.DataFrame, db_path="data/processed/eco_products.db", 
 # Process and store each raw table
 if __name__=='__main__':
     for table in raw_table:
-        df_clean = clean_prodct_data(table)
+        df_clean = clean_product_data(table)
         processed_table = table.replace("_raw", "_processed")
         store_to_sqlite(df_clean, table=processed_table)
