@@ -25,7 +25,7 @@ def fetch_trends_data(kw_list: list[str]) -> pd.DataFrame:
             data = pytrends.interest_over_time()
             if data.empty:
                 print(f"⚠️ No data for batch {batch}, skipping...")
-                continue
+                continue #continue to next batch
             all_data.append(data)
         except Exception as e:
             print(f"❌ Error fetching batch {batch}: {e}")
