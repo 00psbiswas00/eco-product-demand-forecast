@@ -3,7 +3,7 @@ import pandas as pd
 import sqlite3
 import time
 from config.trends_config import TRENDS_KEYWORDS, TRENDS_BATCH_SIZE, TRENDS_TIMEFRAME
-from config.db_config import RAW_DB_PATH, RAW_TRENDS_TABLE
+from config.db_config import RAW_TRENDS_DB, RAW_TRENDS_TABLE
 
 
 """
@@ -30,7 +30,7 @@ def fetch_trends_data(kw_list: list[str]) -> pd.DataFrame:
         except Exception as e:
             print(f"❌ Error fetching batch {batch}: {e}")
             continue
-    return pd.concat(all_data)
+    return pd.concat(all_data) #marge all batch into dataframe
         
 
 """
@@ -59,7 +59,7 @@ def bronze_layer() -> pd.DataFrame:
     return raw_df
 
 
-def store_to_sqlite(df:pd.DataFrame, db_path: str =RAW_DB_PATH, table: str =RAW_TRENDS_TABLE) -> None:
+def store_to_sqlite(df:pd.DataFrame, db_path: str = RAW_TRENDS_DB, table: str =RAW_TRENDS_TABLE) -> None:
     con= sqlite3.connect(db_path)
     df.to_sql(table, con, if_exists='replace', index=False)
     con.close()

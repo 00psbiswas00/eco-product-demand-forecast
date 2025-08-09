@@ -1,14 +1,15 @@
 import pandas as pd
 import sqlite3
 from openfoodfacts import API, APIVersion, Country, Flavor, Environment
+from config.db_config import RAW_PRODUCTS_DB, OPENFOODFACTS_RAW_TABLE, OPENBEAUTYFACTS_RAW_TABLE
 
 # Script to fetch eco-product data from OpenFoodFacts and OpenBeautyFacts APIs,
 # normalize results, and store them into SQLite for later analysis.
 
 # Mapping of dataset flavor to corresponding SQLite table names
 flavor_table: dict[Flavor,str]={
-    Flavor.off: "openfoodfacts_raw",
-    Flavor.obf: "openbeautyfacts_raw"
+    Flavor.off: OPENFOODFACTS_RAW_TABLE,
+    Flavor.obf: OPENBEAUTYFACTS_RAW_TABLE
 }
 
 # Keywords per flavor: separate queries for Food (off) and Beauty (obf)
@@ -58,13 +59,13 @@ def fetch_openfoodfacts(api: API, query: str, page_size: int = 50) -> pd.DataFra
     return pd.DataFrame(records)
 
 
-def store_to_sqlite(df: pd.DataFrame, db_path="data/raw/products.db", table="products_raw"):
+def store_to_sqlite(df: pd.DataFrame, db_path=RAW_PRODUCTS_DB, table="products_raw"):
     """Store DataFrame into SQLite under the given table"""
     if df.empty:
         print(f" No data to store in {table}")
         return
     con = sqlite3.connect(db_path)
-    df.to_sql(table, con, if_exists="append", index=False)
+    df.to_sql(table, con, if_exists="replace", index=False)
     con.close()
     print(f"✅ Stored {len(df)} rows into {table}")
 

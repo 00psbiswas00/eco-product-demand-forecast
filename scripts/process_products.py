@@ -1,8 +1,9 @@
 import pandas as pd
 import sqlite3
+from config.db_config import RAW_PRODUCTS_DB, PROCESSED_PRODUCTS_DB,OPENFOODFACTS_RAW_TABLE, OPENBEAUTYFACTS_RAW_TABLE
 
 # List of raw product tables to be processed
-raw_table: list[str]=['openfoodfacts_raw', 'openbeautyfacts_raw']
+raw_table: list[str]=[OPENFOODFACTS_RAW_TABLE, OPENBEAUTYFACTS_RAW_TABLE]
 
 def clean_product_data(table:str)->pd.DataFrame:
     """
@@ -14,7 +15,7 @@ def clean_product_data(table:str)->pd.DataFrame:
     Returns:
     pd.DataFrame: Cleaned DataFrame with necessary fields filled and duplicates removed.
     """
-    con= sqlite3.connect('data/raw/products.db')
+    con= sqlite3.connect(RAW_PRODUCTS_DB)
     df=pd.read_sql(f'SELECT * FROM {table};', con)
     con.close()
     df=df.dropna(subset=['product_name','url'])
@@ -29,13 +30,12 @@ def clean_product_data(table:str)->pd.DataFrame:
                                         .str.replace(r"[>\-;|/\\]", ",", regex=True)
                                         .str.split(',')
                                         .apply(lambda cat:', '.join([i.strip() for i in cat if i.strip()] if isinstance(cat, list) else [])))
-                                        
-        
+                                         
 
     return df
 
 
-def store_to_sqlite(df: pd.DataFrame, db_path="data/processed/eco_products.db", table="products_processed"):
+def store_to_sqlite(df: pd.DataFrame, db_path=PROCESSED_PRODUCTS_DB, table="products_processed"):
     """
     Stores a cleaned DataFrame into a SQLite database.
 
@@ -48,7 +48,7 @@ def store_to_sqlite(df: pd.DataFrame, db_path="data/processed/eco_products.db", 
         print(f'No data to store in {table}')
         return
     con = sqlite3.connect(db_path)
-    df.to_sql(table, con, if_exists="append", index=False)
+    df.to_sql(table, con, if_exists="replace", index=False)
     con.close()
     print(f"✅ Stored {len(df)} rows into {table}")
 
@@ -57,5 +57,5 @@ def store_to_sqlite(df: pd.DataFrame, db_path="data/processed/eco_products.db", 
 if __name__=='__main__':
     for table in raw_table:
         df_clean = clean_product_data(table)
-        processed_table = table.replace("_raw", "_processed")
+        processed_table = table.replace('_raw', '_processed')
         store_to_sqlite(df_clean, table=processed_table)

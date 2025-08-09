@@ -1,7 +1,12 @@
 # config/db_config.py
 
-RAW_DB_PATH = "data/raw/trends.db"
-RAW_TRENDS_TABLE = "Trends_raw"
+# --- RAW DATA ---
+RAW_TRENDS_DB = "data/raw/trends.db"
+RAW_TRENDS_TABLE = "trends_raw"
 
-PROCESSED_DB_PATH = "data/processed/eco_products.db"
-PROCESSED_PRODUCTS_TABLE = "Products_processed"
+RAW_PRODUCTS_DB = "data/raw/products.db"
+OPENFOODFACTS_RAW_TABLE = "openfoodfacts_raw"
+OPENBEAUTYFACTS_RAW_TABLE = "openbeautyfacts_raw"
+
+# --- PROCESSED DATA ---
+PROCESSED_PRODUCTS_DB = "data/processed/eco_products.db"
