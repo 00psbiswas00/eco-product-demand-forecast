@@ -2,6 +2,8 @@ import pandas as pd
 import sqlite3
 from openfoodfacts import API, APIVersion, Country, Flavor, Environment
 from config.db_config import RAW_PRODUCTS_DB, OPENFOODFACTS_RAW_TABLE, OPENBEAUTYFACTS_RAW_TABLE
+from config.products_config import FOOD_KEYWORDS, BEAUTY_KEYWORDS, PRODUCTS_PAGE_SIZE
+
 
 # Script to fetch eco-product data from OpenFoodFacts and OpenBeautyFacts APIs,
 # normalize results, and store them into SQLite for later analysis.
@@ -14,22 +16,12 @@ flavor_table: dict[Flavor,str]={
 
 # Keywords per flavor: separate queries for Food (off) and Beauty (obf)
 kw_map: dict[Flavor, list[str]] = {
-    Flavor.off: [
-        "organic food",
-        "plant-based",
-        "organic snacks",
-        "beverages",
-        "eco"
-    ],
-    Flavor.obf: [
-        "natural skincare",
-        "organic shampoo",
-        "organic cosmetics"
-    ]
+    Flavor.off:FOOD_KEYWORDS,
+    Flavor.obf: BEAUTY_KEYWORDS
 }
 
 
-def fetch_openfoodfacts(api: API, query: str, page_size: int = 50) -> pd.DataFrame:
+def fetch_openfoodfacts(api: API, query: str, page_size: int) -> pd.DataFrame:
     """Fetch product data from the given API flavor for a query and return as DataFrame"""
     
     # Attempt to fetch products from API using text search
@@ -85,7 +77,7 @@ if __name__ == "__main__":
         )
         
         for query in kw_map[flavor]:
-            df = fetch_openfoodfacts(api, query, page_size=50)
+            df = fetch_openfoodfacts(api, query, PRODUCTS_PAGE_SIZE)
             # Preview first rows before storing
             print(df.head(2))
             store_to_sqlite(df, table=table_name)
