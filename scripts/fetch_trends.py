@@ -1,25 +1,10 @@
 from pytrends.request import TrendReq
 import pandas as pd
 import sqlite3
-import os
 import time
+from config.trends_config import TRENDS_KEYWORDS, TRENDS_BATCH_SIZE, TRENDS_TIMEFRAME
+from config.db_config import RAW_DB_PATH, RAW_TRENDS_TABLE
 
-# List of keywords for Google Trends analysis.
-# Google Trends allows fetching a maximum of 5 keywords at a time.
-
-kw_list: list[str] = [
-    "sustainable fashion",
-    "eco-friendly clothing",
-    "organic cotton",
-    "eco-friendly products",
-    "biodegradable packaging",
-    "zero waste products",
-    "green energy",
-    "solar panels",
-    "electric scooter",
-    "organic food",
-    "natural skincare"
-]
 
 """
 Fetches Google Trends data for the given list of keywords.
@@ -30,14 +15,21 @@ Notes:
 - Combines all batches into a single DataFrame and returns it.
 """
 def fetch_trends_data(kw_list: list[str]) -> pd.DataFrame:
-    pytrends= TrendReq(hl='en-US', tz=330)
+    pytrends = TrendReq(hl='en-US', tz=330)
     all_data: list[pd.DataFrame] = []
-    for i in range(0, len(kw_list),5):
-        batch= kw_list[i:i+5] #load 5 items into the list by slicing 
-        pytrends.build_payload(batch, timeframe="today 12-m")
-        time.sleep(2) 
-        data= pytrends.interest_over_time()
-        all_data.append(data)
+    for i in range(0, len(kw_list), TRENDS_BATCH_SIZE):
+        batch = kw_list[i:i + TRENDS_BATCH_SIZE]
+        try:
+            pytrends.build_payload(batch, timeframe=TRENDS_TIMEFRAME)
+            time.sleep(2)
+            data = pytrends.interest_over_time()
+            if data.empty:
+                print(f"⚠️ No data for batch {batch}, skipping...")
+                continue
+            all_data.append(data)
+        except Exception as e:
+            print(f"❌ Error fetching batch {batch}: {e}")
+            continue
     return pd.concat(all_data)
         
 
@@ -57,7 +49,7 @@ Returns:
 """
 
 def bronze_layer() -> pd.DataFrame:
-    raw_df=fetch_trends_data(kw_list)
+    raw_df=fetch_trends_data(TRENDS_KEYWORDS)
     raw_df=raw_df.reset_index()
     raw_df= raw_df.melt(id_vars=['date'], var_name='keyword', value_name='value')
     raw_df['date'] = raw_df['date'].dt.strftime("%Y-%m-%d")
@@ -67,9 +59,9 @@ def bronze_layer() -> pd.DataFrame:
     return raw_df
 
 
-def store_to_sqlite(df:pd.DataFrame, db_path: str ='data/raw/trends.db', table: str ='Trends_raw') -> None:
+def store_to_sqlite(df:pd.DataFrame, db_path: str =RAW_DB_PATH, table: str =RAW_TRENDS_TABLE) -> None:
     con= sqlite3.connect(db_path)
-    df.to_sql(table, con, if_exists='append', index=False)
+    df.to_sql(table, con, if_exists='replace', index=False)
     con.close()
 
 
