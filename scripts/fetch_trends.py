@@ -26,11 +26,11 @@ def fetch_trends_data(kw_list: list[str]) -> pd.DataFrame:
             if data.empty:
                 print(f"⚠️ No data for batch {batch}, skipping...")
                 continue #continue to next batch
-            all_data.append(data)
+            all_data.append(data.reset_index())
         except Exception as e:
             print(f"❌ Error fetching batch {batch}: {e}")
             continue
-    return pd.concat(all_data) #marge all batch into dataframe
+    return pd.concat(all_data).reset_index(drop=True) #marge all batch into dataframe
         
 
 """
@@ -48,16 +48,6 @@ Returns:
     pd.DataFrame: A cleaned DataFrame ready for storage in the Bronze layer.
 """
 
-def bronze_layer() -> pd.DataFrame:
-    raw_df=fetch_trends_data(TRENDS_KEYWORDS)
-    raw_df=raw_df.reset_index()
-    raw_df= raw_df.melt(id_vars=['date'], var_name='keyword', value_name='value')
-    raw_df['date'] = raw_df['date'].dt.strftime("%Y-%m-%d")
-    raw_df= raw_df.drop_duplicates(subset=['date', 'keyword'])
-    raw_df['value']= raw_df['value'].fillna(0).astype(int)
-    raw_df=raw_df.sort_values(['keyword', 'date'])
-    return raw_df
-
 
 def store_to_sqlite(df:pd.DataFrame, db_path: str = RAW_TRENDS_DB, table: str =RAW_TRENDS_TABLE) -> None:
     con= sqlite3.connect(db_path)
@@ -68,5 +58,5 @@ def store_to_sqlite(df:pd.DataFrame, db_path: str = RAW_TRENDS_DB, table: str =R
 
 if __name__=="__main__":
     # Run the Bronze layer ingestion and print a preview of the results.
-    df: pd.DataFrame = bronze_layer()
+    df: pd.DataFrame = fetch_trends_data(TRENDS_KEYWORDS)
     store_to_sqlite(df)

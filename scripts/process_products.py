@@ -1,10 +1,10 @@
 import pandas as pd
 import sqlite3
-from config.db_config import RAW_PRODUCTS_DB, PROCESSED_PRODUCTS_DB,OPENFOODFACTS_RAW_TABLE, OPENBEAUTYFACTS_RAW_TABLE
+from config.db_config import RAW_PRODUCTS_DB, PROCESSED_PRODUCTS_DB,OPENFOODFACTS_RAW_TABLE, OPENBEAUTYFACTS_RAW_TABLE, OPENBEAUTYFACTS_PROCESSED_TABLE, OPENFOODFACTS_PROCESSED_TABLE
 
 # List of raw product tables to be processed
 raw_table: list[str]=[OPENFOODFACTS_RAW_TABLE, OPENBEAUTYFACTS_RAW_TABLE]
-
+processed_table:list[str]=[OPENFOODFACTS_PROCESSED_TABLE,OPENBEAUTYFACTS_PROCESSED_TABLE]
 def clean_product_data(table:str)->pd.DataFrame:
     """
     Cleans product data from a given SQLite table.
@@ -35,7 +35,7 @@ def clean_product_data(table:str)->pd.DataFrame:
     return df
 
 
-def store_to_sqlite(df: pd.DataFrame, db_path=PROCESSED_PRODUCTS_DB, table="products_processed"):
+def store_to_sqlite(df: pd.DataFrame, db_path=PROCESSED_PRODUCTS_DB, table="products_processed")-> None:
     """
     Stores a cleaned DataFrame into a SQLite database.
 
@@ -55,7 +55,6 @@ def store_to_sqlite(df: pd.DataFrame, db_path=PROCESSED_PRODUCTS_DB, table="prod
 
 # Process and store each raw table
 if __name__=='__main__':
-    for table in raw_table:
-        df_clean = clean_product_data(table)
-        processed_table = table.replace('_raw', '_processed')
-        store_to_sqlite(df_clean, table=processed_table)
+    for raw, processed in zip(raw_table, processed_table):
+        df_clean = clean_product_data(raw)
+        store_to_sqlite(df_clean, table=processed)

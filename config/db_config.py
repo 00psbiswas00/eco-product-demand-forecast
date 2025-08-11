@@ -10,3 +10,9 @@ OPENBEAUTYFACTS_RAW_TABLE = "openbeautyfacts_raw"
 
 # --- PROCESSED DATA ---
 PROCESSED_PRODUCTS_DB = "data/processed/eco_products.db"
+OPENFOODFACTS_PROCESSED_TABLE = "openfoodfacts_processed"
+OPENBEAUTYFACTS_PROCESSED_TABLE = "openbeautyfacts_processed"
+
+PROCESSED_TRENDS_DB="data/processed/trends.db"
+PROCESSED_TRENDS_TABLE= "trends_processed"
+
