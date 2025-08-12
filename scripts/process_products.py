@@ -53,8 +53,11 @@ def store_to_sqlite(df: pd.DataFrame, db_path=PROCESSED_PRODUCTS_DB, table="prod
     print(f"✅ Stored {len(df)} rows into {table}")
 
 
-# Process and store each raw table
-if __name__=='__main__':
+def main():
     for raw, processed in zip(raw_table, processed_table):
         df_clean = clean_product_data(raw)
         store_to_sqlite(df_clean, table=processed)
+
+# Process and store each raw table
+if __name__=='__main__':
+    main()

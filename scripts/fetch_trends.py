@@ -55,8 +55,12 @@ def store_to_sqlite(df:pd.DataFrame, db_path: str = RAW_TRENDS_DB, table: str =R
     con.close()
 
 
-
-if __name__=="__main__":
-    # Run the Bronze layer ingestion and print a preview of the results.
+# Run the Bronze layer ingestion and print a preview of the results.
+    
+def main():
     df: pd.DataFrame = fetch_trends_data(TRENDS_KEYWORDS)
     store_to_sqlite(df)
+    print(f"✅ Stored {len(df)} rows into {RAW_TRENDS_TABLE}")
+
+if __name__=="__main__":
+    main()

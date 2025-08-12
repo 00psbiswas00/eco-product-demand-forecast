@@ -30,8 +30,12 @@ def store_to_sqlite(df: pd.DataFrame, db_path=PROCESSED_TRENDS_DB, table=PROCESS
     print(f"✅ Stored {len(df)} rows into {table}")
 
 
-if __name__=='__main__':
+def main():
     df= clean_trend_data(RAW_TRENDS_TABLE)
     store_to_sqlite(df)
 
+
+
+if __name__=='__main__':
+    main()
 

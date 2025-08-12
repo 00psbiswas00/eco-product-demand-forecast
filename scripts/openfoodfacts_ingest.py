@@ -62,7 +62,7 @@ def store_to_sqlite(df: pd.DataFrame, db_path=RAW_PRODUCTS_DB, table="products_r
     print(f"✅ Stored {len(df)} rows into {table}")
 
 
-if __name__ == "__main__":
+def main():
     # Loop through each flavor and fetch data for relevant queries
     for flavor, table_name in flavor_table.items():
         print(f"\nFetching data for flavor: {flavor} -> table: {table_name}")
@@ -81,3 +81,7 @@ if __name__ == "__main__":
             # Preview first rows before storing
             print(df.head(2))
             store_to_sqlite(df, table=table_name)
+
+
+if __name__ == "__main__":
+    main()
