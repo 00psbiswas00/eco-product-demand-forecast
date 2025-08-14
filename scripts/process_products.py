@@ -22,16 +22,19 @@ def clean_product_data(table:str)->pd.DataFrame:
     for col in ['brand','categories','labels','packaging','ecoscore_grade','nutriscore_grade']:
         if col in df.columns:
             df[col] = df[col].fillna('unknown')
+    # Standardize key text fields for better tagging accuracy
+    for col in ['categories', 'labels', 'packaging']:
+        if col in df.columns:
+            df[col] = (
+                df[col].str.lower()
+                .str.replace(r"[>\-;|/\\]", ",", regex=True)  # unify separators
+                .str.replace(r"[a-z]{2}:", "", regex=True)    # remove lang prefixes like 'en:'
+                .str.split(',')
+                .apply(lambda items: ', '.join([i.strip() for i in items if i.strip() and i.strip() != 'unknown'])
+                       if isinstance(items, list) else '')
+                .replace('', 'unknown')
+            )
     df=df.drop_duplicates(subset=['url'])
-
-    #standarize the data
-    if 'categories' in df.columns:
-        df['categories']= (df['categories'].str.lower()
-                                        .str.replace(r"[>\-;|/\\]", ",", regex=True)
-                                        .str.split(',')
-                                        .apply(lambda cat:', '.join([i.strip() for i in cat if i.strip()] if isinstance(cat, list) else [])))
-                                         
-
     return df
 
 

@@ -10,17 +10,14 @@ def map_tags(df:pd.DataFrame)-> pd.DataFrame:
     search_series= df[['categories', 'labels', 'packaging']].fillna('').apply(lambda row: ' '.join(row), axis=1)
     
     # For each tag category, check if any keyword is in the row text
-    df['sustainability_tags']= search_series.apply(
+    df['sustainability_tags'] = search_series.apply(
         lambda text: [
             tag for tag, keywords in SUSTAINABILITY_TAGS.items()
-                     if any(kw in text for kw in keywords)
+            if any(kw in text for kw in keywords)
         ]
     )
-
-    # Convert list of tags to a comma-separated string for DB storage
-    df['sustainability_tags'] = df['sustainability_tags'].apply(
-        lambda tags: ', '.join(tags) if isinstance(tags, list) else ''
-    )
+    # Add a boolean column indicating if there is at least one sustainability tag
+    df['has_sustainability_tag'] = df['sustainability_tags'].apply(lambda tags: len(tags) > 0)
     return df
 
 
@@ -32,6 +29,10 @@ def add_susutainabily_tag()->None:
     
     openbeautyfacts_df=map_tags(openbeautyfacts_df)
     openfoodfacts_df=map_tags(openfoodfacts_df)
+
+    # Convert lists to comma-separated strings for storage
+    for df in [openbeautyfacts_df, openfoodfacts_df]:
+        df['sustainability_tags'] = df['sustainability_tags'].apply(lambda tags: ', '.join(tags))
 
     openbeautyfacts_df.to_sql(OPENBEAUTYFACTS_PROCESSED_TABLE, con, if_exists="replace", index=False)
     openfoodfacts_df.to_sql(OPENFOODFACTS_PROCESSED_TABLE, con, if_exists="replace", index=False)
