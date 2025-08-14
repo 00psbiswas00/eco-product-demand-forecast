@@ -1,19 +1,12 @@
 # config/trends_config.py
 
-# Keywords for Google Trends
-TRENDS_KEYWORDS = [
-    "sustainable fashion",
-    "eco-friendly clothing",
-    "organic cotton",
-    "eco-friendly products",
-    "biodegradable packaging",
-    "zero waste products",
-    "green energy",
-    "solar panels",
-    "electric scooter",
-    "organic food",
-    "natural skincare"
-]
+from config.sustainability_tags import SUSTAINABILITY_TAGS
+
+# Flatten all keywords from the sustainability mapping
+TRENDS_KEYWORDS = sorted(
+    {kw for keywords in SUSTAINABILITY_TAGS.values() for kw in keywords}
+)
+
 
 # Trends API settings
 TRENDS_TIMEFRAME = "today 12-m"

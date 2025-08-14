@@ -26,11 +26,15 @@ def fetch_trends_data(kw_list: list[str]) -> pd.DataFrame:
             if data.empty:
                 print(f"⚠️ No data for batch {batch}, skipping...")
                 continue #continue to next batch
-            all_data.append(data.reset_index())
+            # Drop isPartial if exists
+            data = data.drop(columns=["isPartial"], errors="ignore")
+            # Reshape from wide to long
+            data_long = data.reset_index().melt(id_vars=["date"], var_name="keyword", value_name="value")
+            all_data.append(data_long)
         except Exception as e:
             print(f"❌ Error fetching batch {batch}: {e}")
             continue
-    return pd.concat(all_data).reset_index(drop=True) #marge all batch into dataframe
+    return pd.concat(all_data, ignore_index=True)
         
 
 """
