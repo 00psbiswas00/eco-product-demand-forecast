@@ -16,3 +16,6 @@ OPENBEAUTYFACTS_PROCESSED_TABLE = "openbeautyfacts_processed"
 PROCESSED_TRENDS_DB="data/processed/trends.db"
 PROCESSED_TRENDS_TABLE= "trends_processed"
 
+# --- FINAL DATA ---
+FINAL_db="data/final/products_with_trends.db"
+FINAL_TABLE="products_with_trends"

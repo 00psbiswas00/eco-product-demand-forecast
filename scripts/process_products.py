@@ -5,6 +5,7 @@ from config.db_config import RAW_PRODUCTS_DB, PROCESSED_PRODUCTS_DB,OPENFOODFACT
 # List of raw product tables to be processed
 raw_table: list[str]=[OPENFOODFACTS_RAW_TABLE, OPENBEAUTYFACTS_RAW_TABLE]
 processed_table:list[str]=[OPENFOODFACTS_PROCESSED_TABLE,OPENBEAUTYFACTS_PROCESSED_TABLE]
+
 def clean_product_data(table:str)->pd.DataFrame:
     """
     Cleans product data from a given SQLite table.
@@ -19,6 +20,7 @@ def clean_product_data(table:str)->pd.DataFrame:
     df=pd.read_sql(f'SELECT * FROM {table};', con)
     con.close()
     df=df.dropna(subset=['product_name','url'])
+    df = df[(df['product_name'].str.strip() != '') & (df['brand'].str.strip() != '')]
     for col in ['brand','categories','labels','packaging','ecoscore_grade','nutriscore_grade']:
         if col in df.columns:
             df[col] = df[col].fillna('unknown')
