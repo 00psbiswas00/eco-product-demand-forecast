@@ -22,21 +22,20 @@ def map_tags(df:pd.DataFrame)-> pd.DataFrame:
 
 
 def add_susutainabily_tag()->None:
-    con=sqlite3.connect(PROCESSED_PRODUCTS_DB)
-    openbeautyfacts_df= pd.read_sql(f'SELECT * FROM {OPENBEAUTYFACTS_PROCESSED_TABLE}', con)
-    openfoodfacts_df=pd.read_sql(f'SELECT * FROM {OPENFOODFACTS_PROCESSED_TABLE}', con)
-    
-    
-    openbeautyfacts_df=map_tags(openbeautyfacts_df)
-    openfoodfacts_df=map_tags(openfoodfacts_df)
+    with sqlite3.connect(PROCESSED_PRODUCTS_DB) as con:
+        openbeautyfacts_df= pd.read_sql(f'SELECT * FROM {OPENBEAUTYFACTS_PROCESSED_TABLE}', con)
+        openfoodfacts_df=pd.read_sql(f'SELECT * FROM {OPENFOODFACTS_PROCESSED_TABLE}', con)
+        
+        
+        openbeautyfacts_df=map_tags(openbeautyfacts_df)
+        openfoodfacts_df=map_tags(openfoodfacts_df)
 
-    # Convert lists to comma-separated strings for storage
-    for df in [openbeautyfacts_df, openfoodfacts_df]:
-        df['sustainability_tags'] = df['sustainability_tags'].apply(lambda tags: ', '.join(tags))
+        # Convert lists to comma-separated strings for storage
+        for df in [openbeautyfacts_df, openfoodfacts_df]:
+            df['sustainability_tags'] = df['sustainability_tags'].apply(lambda tags: ', '.join(tags))
 
-    openbeautyfacts_df.to_sql(OPENBEAUTYFACTS_PROCESSED_TABLE, con, if_exists="replace", index=False)
-    openfoodfacts_df.to_sql(OPENFOODFACTS_PROCESSED_TABLE, con, if_exists="replace", index=False)
-    con.close()
+        openbeautyfacts_df.to_sql(OPENBEAUTYFACTS_PROCESSED_TABLE, con, if_exists="replace", index=False)
+        openfoodfacts_df.to_sql(OPENFOODFACTS_PROCESSED_TABLE, con, if_exists="replace", index=False)
 
 def main():
     add_susutainabily_tag()

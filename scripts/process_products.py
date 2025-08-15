@@ -16,9 +16,8 @@ def clean_product_data(table:str)->pd.DataFrame:
     Returns:
     pd.DataFrame: Cleaned DataFrame with necessary fields filled and duplicates removed.
     """
-    con= sqlite3.connect(RAW_PRODUCTS_DB)
-    df=pd.read_sql(f'SELECT * FROM {table};', con)
-    con.close()
+    with sqlite3.connect(RAW_PRODUCTS_DB) as con:
+        df = pd.read_sql(f'SELECT * FROM {table};', con)
     df=df.dropna(subset=['product_name','url'])
     df = df[(df['product_name'].str.strip() != '') & (df['brand'].str.strip() != '')]
     for col in ['brand','categories','labels','packaging','ecoscore_grade','nutriscore_grade']:
@@ -52,9 +51,8 @@ def store_to_sqlite(df: pd.DataFrame, db_path=PROCESSED_PRODUCTS_DB, table="prod
     if df.empty:
         print(f'No data to store in {table}')
         return
-    con = sqlite3.connect(db_path)
-    df.to_sql(table, con, if_exists="replace", index=False)
-    con.close()
+    with sqlite3.connect(db_path) as con:
+        df.to_sql(table, con, if_exists="replace", index=False)
     print(f"✅ Stored {len(df)} rows into {table}")
 
 

@@ -56,9 +56,8 @@ def store_to_sqlite(df: pd.DataFrame, db_path=RAW_PRODUCTS_DB, table="products_r
     if df.empty:
         print(f" No data to store in {table}")
         return
-    con = sqlite3.connect(db_path)
-    df.to_sql(table, con, if_exists="replace", index=False)
-    con.close()
+    with sqlite3.connect(db_path) as con:
+        df.to_sql(table, con, if_exists="replace", index=False)
     print(f"✅ Stored {len(df)} rows into {table}")
 
 

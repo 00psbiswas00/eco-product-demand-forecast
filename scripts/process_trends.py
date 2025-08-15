@@ -5,10 +5,9 @@ from config.db_config import RAW_TRENDS_DB, RAW_TRENDS_TABLE, PROCESSED_TRENDS_D
 
 
 def clean_trend_data(table:str) -> pd.DataFrame:
-    con= sqlite3.connect(RAW_TRENDS_DB)
-    df=pd.read_sql(f'SELECT * FROM {table}', con)
-    print(df.head(5))
-    con.close()
+    with sqlite3.connect(RAW_TRENDS_DB) as con:
+        df=pd.read_sql(f'SELECT * FROM {table}', con)
+        print(df.head(5))
     #df= df.melt(id_vars=['date'], var_name='keyword', value_name='value')
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
     df['date'] = df['date'].dt.strftime("%Y-%m-%d")
@@ -23,9 +22,8 @@ def store_to_sqlite(df: pd.DataFrame, db_path=PROCESSED_TRENDS_DB, table=PROCESS
         print(f'No data to store in {table}')
         return
     
-    con= sqlite3.connect(db_path)
-    df.to_sql(table,con, if_exists='replace', index=False)
-    con.close()
+    with sqlite3.connect(db_path) as con:
+        df.to_sql(table,con, if_exists='replace', index=False)
     print(f"✅ Stored {len(df)} rows into {table}")
 
 
@@ -37,4 +35,3 @@ def main():
 
 if __name__=='__main__':
     main()
-
