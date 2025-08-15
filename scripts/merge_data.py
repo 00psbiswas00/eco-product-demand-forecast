@@ -3,17 +3,20 @@ import sqlite3
 from config.db_config import PROCESSED_PRODUCTS_DB, PROCESSED_TRENDS_DB, OPENFOODFACTS_PROCESSED_TABLE, OPENBEAUTYFACTS_PROCESSED_TABLE, PROCESSED_TRENDS_TABLE, FINAL_db, FINAL_TABLE
 
 
-with sqlite3.connect(PROCESSED_TRENDS_DB) as trend_db_con:
-    trends_df= pd.read_sql(f'SELECT * FROM {PROCESSED_TRENDS_TABLE}', trend_db_con)
-
-
-with sqlite3.connect(PROCESSED_PRODUCTS_DB) as product_db_con:
-    beauty_product_df= pd.read_sql(f'SELECT * FROM {OPENBEAUTYFACTS_PROCESSED_TABLE}', product_db_con)
-    food_product_df=pd.read_sql(f'SELECT * FROM {OPENFOODFACTS_PROCESSED_TABLE}', product_db_con)
 
 
 
 def data_merge() -> pd.DataFrame:
+    with sqlite3.connect(PROCESSED_TRENDS_DB) as trend_db_con:
+        trends_df= pd.read_sql(f'SELECT * FROM {PROCESSED_TRENDS_TABLE}', trend_db_con)
+
+
+    with sqlite3.connect(PROCESSED_PRODUCTS_DB) as product_db_con:
+        beauty_product_df= pd.read_sql(f'SELECT * FROM {OPENBEAUTYFACTS_PROCESSED_TABLE}', product_db_con)
+        food_product_df=pd.read_sql(f'SELECT * FROM {OPENFOODFACTS_PROCESSED_TABLE}', product_db_con)
+
+
+    
     # Ensure columns match before concatenation
     if list(beauty_product_df.columns) != list(food_product_df.columns):
         raise ValueError("Column mismatch between beauty and food product tables.")
