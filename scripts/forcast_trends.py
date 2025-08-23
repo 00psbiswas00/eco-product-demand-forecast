@@ -6,13 +6,19 @@ from config.db_config import PROCESSED_TRENDS_DB, PROCESSED_TRENDS_TABLE, FORECA
 from config.forecasting_config import FORECAST_HORIZON, MIN_POINTS_PER_KEYWORD
 
 
-
-
 def load_trends_df()-> pd.DataFrame:
     with sqlite3.connect(PROCESSED_TRENDS_DB) as con:
         df=pd.read_sql(f'SELECT * from {PROCESSED_TRENDS_TABLE}', con)
         df['date']=pd.to_datetime(df['date'])
         df.sort_values(by=['keyword','date'], inplace= True)
+        
+        # --- Filtering dead/flat keywords ---
+        df = (
+            df.groupby("keyword")
+            .filter(lambda g: (g["value"] > 0)
+            .sum() >= MIN_POINTS_PER_KEYWORD and g["value"].nunique() > 1)
+        )
+
     return df[['date', 'keyword', 'value']]
 
 def add_time_index(df: pd.DataFrame) -> pd.DataFrame:
@@ -28,10 +34,11 @@ def forecast_one_keyword(g:pd.DataFrame,horizon:int, min_points:int):
     if n< min_points:
         return None
     
+    horizon = min(horizon, n // 2)
+      
     X= g[['t']].to_numpy()
     y=g['value'].to_numpy()
     model= LinearRegression().fit(X,y)
-
 
     # future timeline (weekly)
     t_future= np.arange(n, n+horizon).reshape(-1,1)
