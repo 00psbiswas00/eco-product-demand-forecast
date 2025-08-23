@@ -4,7 +4,8 @@ from scripts import (
     openfoodfacts_ingest,
     process_products,
     map_sustainability_tags,
-    merge_data
+    merge_data,
+    forcast_trends
 )
 #ingest the data
 fetch_trends.main()
@@ -17,3 +18,6 @@ map_sustainability_tags.main()
 
 # Merge trends and product metadata → unified dataset
 merge_data.main()
+
+#forcast whith regression
+forcast_trends.main()

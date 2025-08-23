@@ -17,3 +17,6 @@ PROCESSED_TRENDS_TABLE = "trends_processed"
 # --- FINAL DATA ---
 FINAL_db = "db/products_with_trends.db"
 FINAL_TABLE = "products_with_trends"
+
+FORECAST_TRENDS_DB = "db/trends_forecast.db"
+FORECAST_TRENDS_TABLE = "trends_forecast"
